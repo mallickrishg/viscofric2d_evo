@@ -24,7 +24,7 @@ basevw = 19e3;
 power = 1;% strain rate = A*stress^(power)
 burger = 0;% on/off    
 % rheological coefficient
-etaval = 1e18;%Maxwell viscosity in Pa-s; for power>1, this is A^{-1}
+etaval = 1e18;%Maxwell viscosity in Pa-s; for power>1
 
 alphaval = 1/10;% for Kelvin element (eta_K = alpha*etaM)
 
@@ -124,6 +124,7 @@ disp(['dx(fault) = ' num2str(dx_fault) 'm'])
 disp(['dx(shear) = ' num2str(dx_shearzone) 'm'])
 
 disp('Assigned Frictional Properties')
+return
 %% % % % % % % % % % % % % % % % % % % % % % % % % % % %
 %                                                      %
 %                   R H E O L O G Y                    %

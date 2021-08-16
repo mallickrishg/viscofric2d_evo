@@ -21,8 +21,8 @@ basevw = 19e3;
 
 
 % shear zones
-power = 3;% strain rate = A*stress^(power)
-burger = 0;% on/off    
+power = 1.0;% strain rate = A*stress^(power)
+burger = 1;% on-1/off-0
 % rheological coefficient
 etaval = 1e18;%Maxwell viscosity in Pa-s; for power>1, this is A^{-1}
 
@@ -169,13 +169,6 @@ evl.sigma130 = -evl.kl13*ss.Vpl - evl.l1213*shz.e12pl  - evl.l1313*shz.e13pl;
 %         N U M E R I C A L   S O L U T I O N           %
 %                                                       %
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
-%% output directory
-odir = ['imposedviscocycles_' num2str(Vpl,'%1.e') '/Nx_' num2str(Nx) '_M_' num2str(M) ...
-    '/power_' num2str(power) '_' num2str(etaval) '/Trec_' num2str(Teq./3.15e7)];
-
-disp(odir)
-
-
 %% Initialize State Vector
 Y0=zeros(ss.M*ss.dgf+shz.N*shz.dgf,1);
 
@@ -338,62 +331,32 @@ for i = 1:length(tplotvec)
     subplot(2,1,i)
 
 
-    %toplot = sqrt((e12d(index,:)-shz.e12pl').^2 + (e13d(index,:)-shz.e13pl').^2)';
-    % toplot = abs(sqrt(e12d(index,:)'.^2 + e13d(index,:)'.^2) - sqrt(shz.e12pl.^2 + shz.e13pl.^2));
-    %toplot = abs(e12d(index,:)' - 1.*shz.e12pl);
-    %toplot = sqrt(shz.e12pl.^2 + shz.e13pl.^2);
+%     toplot = sqrt((e12d(index,:)-shz.e12pl').^2 + (e13d(index,:)-shz.e13pl').^2)';
+%     toplot = abs(sqrt(e12d(index,:)'.^2 + e13d(index,:)'.^2) - sqrt(shz.e12pl.^2 + shz.e13pl.^2));
+%     toplot = abs(e12d(index,:)' - shz.e12pl);
+%     toplot = sqrt(shz.e12pl.^2 + shz.e13pl.^2);
     toplot = sqrt(e12d(index,:).^2 + e13d(index,:).^2)';
     
-    F = scatteredInterpolant(x2c,x3c,abs(toplot),'natural');
-    x2g = linspace(-100e3,100e3,1000)';
-    x3g = linspace(min(shz.A(:,2)),max(shz.A(:,2)),200)';
-    [X2g,X3g] = meshgrid(x2g,x3g);
-    toplotint = F(X2g(:),X3g(:));
+%     F = scatteredInterpolant(x2c,x3c,abs(toplot),'natural');
+%     x2g = linspace(-100e3,100e3,1000)';
+%     %x3g = linspace(min(shz.A(:,2)),max(shz.A(:,2)),200)';
+%     x3g = linspace(Transition,Transition+x3_scale,200)';
+%     [X2g,X3g] = meshgrid(x2g,x3g);
+%     toplotint = F(X2g(:),X3g(:));
     
-    imagesc(x2g./1e3,x3g./1e3,reshape(toplotint,length(x3g),length(x2g))), shading flat, hold on
-    contour(x2g./1e3,x3g./1e3,reshape(toplotint,length(x3g),length(x2g)),...
-        logspace(log10(Vpl*1e-6),log10(Vpl*1e-3),20),'w-','LineWidth',.1)
+    %imagesc(x2g./1e3,x3g./1e3,reshape(toplotint,length(x3g),length(x2g))), shading flat, hold on
+    plotshz(shz,toplot,1), shading flat, box on, hold on
+%     contour(x2g./1e3,x3g./1e3,reshape(toplotint,length(x3g),length(x2g)),...
+%         logspace(log10(Vpl*1e-6),log10(Vpl*1e-3),20),'w-','LineWidth',.1)
     set(gca,'YDir','reverse','FontSize',20,'Color','none','LineWidth',2,'ColorScale','log')
     xlabel('x_2 (km)'),ylabel('x_3 (km)'),
     caxis(Vpl.*[1e-6 1e-4])
-    % xlim([0 1].*100),    
-    %axis equal
+    axis tight equal
+    xlim([-1 1].*100),    
+    
     %ylim([20 50])
     colormap(ttscm('oslo',500))
     cb=colorbar;cb.Label.String = 'strain rate';
     title(['$\frac{\Delta t}{T_{eq}} = $' num2str(round((t(index)))./Teq)],'interpreter','latex','Fontsize',25)
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

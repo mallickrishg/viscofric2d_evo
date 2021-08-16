@@ -3,6 +3,6 @@ MATLAB code to simulate post- and inter-seismic evolution of fault velocity and 
 
 This code relies on 
 
-mesh2d - https://github.com/dengwirda/mesh2d
+mesh2d - https://github.com/dengwirda/mesh2d \n
 Scientific colourmaps from Fabio Crameri - https://www.fabiocrameri.ch/colourmaps/
 Greens functions calculations from Lambert&Barbot (2016) https://doi.org/10.1002/2016GL070345 and Barbot (2018) https://doi.org/10.1785/0120180058

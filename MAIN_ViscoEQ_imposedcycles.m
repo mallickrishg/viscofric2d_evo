@@ -21,7 +21,7 @@ basevw = 19e3;
 
 
 % shear zones
-power = 1;% strain rate = A*stress^(power)
+power = 3;% strain rate = A*stress^(power)
 burger = 0;% on/off    
 % rheological coefficient
 etaval = 1e18;%Maxwell viscosity in Pa-s; for power>1, this is A^{-1}

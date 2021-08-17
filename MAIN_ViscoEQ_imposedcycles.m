@@ -18,14 +18,14 @@ y2i = 0;
 M = 40;
 y3i = 0;
 % base of VW locking (needs to be less than Plate thickness)
-basevw = 19e3;
+basevw = 15e3;
 
 
 % shear zones
 power = 1.0;% strain rate = A*stress^(power)
-burger = 1;% on-1/off-0
+burger = 0;% on-1/off-0
 % rheological coefficient
-etaval = 1e19;%Maxwell viscosity in Pa-s; for power>1, this is A^{-1}
+etaval = 2e18;%Maxwell viscosity in Pa-s; for power>1, this is A^{-1}
 
 alphaval = 1/10;% for Kelvin element (eta_K = alpha*etaM)
 
@@ -39,7 +39,7 @@ end
 Nx = 50;
 Transition = 20e3;% Plate thickness/depth edge of fault domain and beginning of shear zone
 % domain size
-x3_scale = 30e3;
+x3_scale = 100e3;
 x2_scale = 390e3;
 scf = 1.1; % varies the meshing (leave as is)
 %% Create faults and shear zones
@@ -52,7 +52,7 @@ Vpl = 1e-9; %(m/s)
 
 %% impose earthquake parameters
 Teq = 20.*3.15e7;% earthquake every Teq years
-ncycles = 30; % number of earthquake cycles
+ncycles = 20; % number of earthquake cycles
 
 %% Stress Kernels and EVL object
 
@@ -276,7 +276,7 @@ vsurf_f = (Gd.kd*V')';
 vsurf_deep = (repmat(Vpl/pi.*atan2(ox,deepx3),1,length(t)))';
 vsurf_v = (Gd.l12d*e12d' +  Gd.l13d*e13d')'; % no deep loading
 % vsurf_v = (Gd.l12d*(e12d'-shz.e12pl) +  Gd.l13d*(e13d'-shz.e13pl))'; % no deep loading
-vsurf = vsurf_v + vsurf_deep;
+vsurf = vsurf_f + vsurf_v + vsurf_deep;
 
 
 figure(10),clf

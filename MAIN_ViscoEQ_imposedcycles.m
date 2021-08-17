@@ -8,6 +8,7 @@ clear
 addpath ~/Dropbox/scripts/topotoolbox/colormaps/
 addpath ~/Dropbox/scripts/meshing/mesh2d/
 addpath odefunction
+addpath functions
 
 % Rigidity (MPa)
 G = 30e3;
@@ -24,7 +25,7 @@ basevw = 19e3;
 power = 1.0;% strain rate = A*stress^(power)
 burger = 1;% on-1/off-0
 % rheological coefficient
-etaval = 1e18;%Maxwell viscosity in Pa-s; for power>1, this is A^{-1}
+etaval = 1e19;%Maxwell viscosity in Pa-s; for power>1, this is A^{-1}
 
 alphaval = 1/10;% for Kelvin element (eta_K = alpha*etaM)
 
@@ -39,7 +40,7 @@ Nx = 50;
 Transition = 20e3;% Plate thickness/depth edge of fault domain and beginning of shear zone
 % domain size
 x3_scale = 30e3;
-x2_scale = 190e3;
+x2_scale = 390e3;
 scf = 1.1; % varies the meshing (leave as is)
 %% Create faults and shear zones
 
@@ -51,7 +52,7 @@ Vpl = 1e-9; %(m/s)
 
 %% impose earthquake parameters
 Teq = 20.*3.15e7;% earthquake every Teq years
-ncycles = 40; % number of earthquake cycles
+ncycles = 20; % number of earthquake cycles
 
 %% Stress Kernels and EVL object
 
@@ -292,16 +293,16 @@ end
 plot(ox./20e3,1/pi.*atan2(ox,20e3),'k-','LineWidth',2)
 % plot(ox./1e3,1/pi.*atan2(ox,30e3),'k--','LineWidth',1)
 % plot(ox./20e3,1/pi.*atan2(ox,40e3),'k--','LineWidth',1)
-plot(ox./20e3,.9/pi.*atan2(ox,40e3),'k-','LineWidth',2)
+% plot(ox./20e3,.9/pi.*atan2(ox,40e3),'k-','LineWidth',2)
 % plot(ox./20e3,1/pi.*atan2(ox,60e3),'k--','LineWidth',1)
 xlabel('x_2/D'), ylabel('V/V_{pl}')
 axis tight, grid on
 ylim([0 1])
-set(gca,'FontSize',15,'LineWidth',2)
+set(gca,'FontSize',20,'LineWidth',2)
 if burger==0
-    title(['Power n=' num2str(power)])
+    title(['Power n = ' num2str(power)])
 else
-    title('Burger')
+    title('Burgers')
 end
 
 %% solve for slip rate and locking depth for final vsurf
@@ -310,6 +311,7 @@ end
 func = @(beta,obsx) beta(1)./pi.*atan2(obsx,beta(2));
 beta0 = [1,1];
 [beta,res,~,covb,~] = nlinfit(ox./20e3,vsurf(end,:)'./Vpl,func,beta0);
+betaCI = nlparci(beta,res,'covar',covb);
 
 figure(5),clf
 plot(ox./20e3,vsurf(end,:)'./Vpl,'.'), hold on
@@ -337,24 +339,23 @@ for i = 1:length(tplotvec)
 %     toplot = sqrt(shz.e12pl.^2 + shz.e13pl.^2);
     toplot = sqrt(e12d(index,:).^2 + e13d(index,:).^2)';
     
-%     F = scatteredInterpolant(x2c,x3c,abs(toplot),'natural');
-%     x2g = linspace(-100e3,100e3,1000)';
-%     %x3g = linspace(min(shz.A(:,2)),max(shz.A(:,2)),200)';
-%     x3g = linspace(Transition,Transition+x3_scale,200)';
-%     [X2g,X3g] = meshgrid(x2g,x3g);
-%     toplotint = F(X2g(:),X3g(:));
+    F = scatteredInterpolant(x2c,x3c,(toplot),'natural');
+    x2g = linspace(-100e3,100e3,400)';
+    %x3g = linspace(min(shz.A(:,2)),max(shz.A(:,2)),200)';
+    x3g = linspace(Transition,Transition+x3_scale,200)';
+    [X2g,X3g] = meshgrid(x2g,x3g);
+    toplotint = F(X2g(:),X3g(:));
     
-    %imagesc(x2g./1e3,x3g./1e3,reshape(toplotint,length(x3g),length(x2g))), shading flat, hold on
-    plotshz(shz,toplot,1), shading flat, box on, hold on
-%     contour(x2g./1e3,x3g./1e3,reshape(toplotint,length(x3g),length(x2g)),...
-%         logspace(log10(Vpl*1e-6),log10(Vpl*1e-3),20),'w-','LineWidth',.1)
+    imagesc(x2g./1e3,x3g./1e3,reshape(toplotint,length(x3g),length(x2g))), shading flat, hold on
+%     plotshz(shz,toplot,1), shading flat, box on, hold on
+    contour(x2g./1e3,x3g./1e3,reshape(toplotint,length(x3g),length(x2g)),...
+        logspace(log10(Vpl*1e-6),log10(Vpl*1e-3),20),'w-','LineWidth',.1)
     set(gca,'YDir','reverse','FontSize',20,'Color','none','LineWidth',2,'ColorScale','log')
     xlabel('x_2 (km)'),ylabel('x_3 (km)'),
     caxis(Vpl.*[1e-6 1e-4])
     axis tight equal
     xlim([-1 1].*100),    
-    
-    %ylim([20 50])
+    ylim([Transition Transition+x3_scale]./1e3)
     colormap(ttscm('oslo',500))
     cb=colorbar;cb.Label.String = 'strain rate';
     title(['$\frac{\Delta t}{T_{eq}} = $' num2str(round((t(index)))./Teq)],'interpreter','latex','Fontsize',25)

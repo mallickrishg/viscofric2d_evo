@@ -52,7 +52,7 @@ Vpl = 1e-9; %(m/s)
 
 %% impose earthquake parameters
 Teq = 20.*3.15e7;% earthquake every Teq years
-ncycles = 20; % number of earthquake cycles
+ncycles = 30; % number of earthquake cycles
 
 %% Stress Kernels and EVL object
 
@@ -293,7 +293,6 @@ end
 plot(ox./20e3,1/pi.*atan2(ox,20e3),'k-','LineWidth',2)
 % plot(ox./1e3,1/pi.*atan2(ox,30e3),'k--','LineWidth',1)
 % plot(ox./20e3,1/pi.*atan2(ox,40e3),'k--','LineWidth',1)
-% plot(ox./20e3,.9/pi.*atan2(ox,40e3),'k-','LineWidth',2)
 % plot(ox./20e3,1/pi.*atan2(ox,60e3),'k--','LineWidth',1)
 xlabel('x_2/D'), ylabel('V/V_{pl}')
 axis tight, grid on
@@ -314,12 +313,16 @@ beta0 = [1,1];
 betaCI = nlparci(beta,res,'covar',covb);
 
 figure(5),clf
-plot(ox./20e3,vsurf(end,:)'./Vpl,'.'), hold on
+plot(ox./20e3,vsurf(end,:)'./Vpl,'x'), hold on
 plot(ox./20e3,func(beta,ox./20e3),'r-','LineWidth',2)
 plot(ox./20e3,func(beta0,ox./20e3),'k-','LineWidth',2)
-axis tight
+plot(ox./20e3,func([0.9,2],ox./20e3),'k-.','LineWidth',2)
+axis tight, grid on
+xlabel('x_2/D'), ylabel('v/V_{pl}')
 ylim([0 0.5])
-legend('interseismic velocity',['V_{pl} = ' num2str(beta(1),'%.1f') ', D = ' num2str(beta(2),'%.1f')],'location','best')
+legend('interseismic velocity',['V_{pl} = ' num2str(beta(1),'%.1f') ', D = ' num2str(beta(2),'%.1f')]...
+    ,'V_{pl}, D','0.9 V_{pl}, 2D',...
+    'location','best')
 set(gca,'FontSize',15,'LineWidth',1.5)
 %% plot snapshots
 

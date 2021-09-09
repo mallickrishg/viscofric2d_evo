@@ -5,8 +5,10 @@
 
 
 clear
+% close all
+
 addpath ~/Dropbox/scripts/topotoolbox/colormaps/
-addpath ~/Dropbox/scripts/meshing/mesh2d/
+addpath meshing
 addpath odefunction
 addpath functions
 
@@ -18,14 +20,14 @@ y2i = 0;
 M = 40;
 y3i = 0;
 % base of VW locking (needs to be less than Plate thickness)
-basevw = 15e3;
+basevw = 19e3;
 
 
 % shear zones
-power = 1.0;% strain rate = A*stress^(power)
+power = 3;% strain rate = A*stress^(power)
 burger = 0;% on-1/off-0
 % rheological coefficient
-etaval = 2e18;%Maxwell viscosity in Pa-s; for power>1, this is A^{-1}
+etaval = 1e18;%Maxwell viscosity in Pa-s; for power>1, this is A^{-1}
 
 alphaval = 1/10;% for Kelvin element (eta_K = alpha*etaM)
 
@@ -39,19 +41,19 @@ end
 Nx = 50;
 Transition = 20e3;% Plate thickness/depth edge of fault domain and beginning of shear zone
 % domain size
-x3_scale = 100e3;
-x2_scale = 390e3;
-scf = 1.1; % varies the meshing (leave as is)
+x3_scale = 30e3;
+x2_scale = 300e3;
+scf = 1.5; % varies the meshing (leave as is)
 %% Create faults and shear zones
 
 % Trimesh shear zone
 [ss,shz,~] = create_flt_trishz_src(y2i,y3i,Transition,M,Nx,scf,x3_scale,x2_scale,Transition);
-
+disp(['Number of shear zone elements = ' num2str(shz.N)])
 % plate velocity
 Vpl = 1e-9; %(m/s)
 
 %% impose earthquake parameters
-Teq = 20.*3.15e7;% earthquake every Teq years
+Teq = 50.*3.15e7;% earthquake every Teq years
 ncycles = 20; % number of earthquake cycles
 
 %% Stress Kernels and EVL object
@@ -69,6 +71,7 @@ end
 
 % Plot fault and shear zone geometry
 figure(2000),clf
+subplot(211)
 plotpatch(ss,ss.y3c./1e3,1)
 hold on,
 plotshz(shz,x3c./1e3,1)
@@ -76,7 +79,17 @@ axis tight equal, box on
 xlabel('x_2 (km)'), ylabel('x_3 (km)');
 cb=colorbar;cb.Label.String = 'Depth (km)';cb.Direction='reverse';
 set(gca,'YDir','reverse')
-colorbar
+
+subplot(212)
+plotpatch(ss,ss.y3c./1e3,1),hold on,
+plotshz(shz,x3c./1e3,1)
+axis tight equal, box on
+xlim([0 x2_scale./1e3])
+xlim([0 200])
+xlabel('x_2 (km)'), ylabel('x_3 (km)');
+cb=colorbar;cb.Label.String = 'Depth (km)';cb.Direction='reverse';
+set(gca,'YDir','reverse')
+% return
 %% % % % % % % % % % % % % % % % % % % % % % % % % % % %
 %                                                      %
 %         F R I C T I O N   P A R A M E T E R S        %
@@ -133,7 +146,7 @@ disp('Assigned Frictional Properties')
 % compute long-term loading rate
 [e12pl,e13pl] = edotlongtermsol(x2c./(max(shz.A(:,2))-min(shz.A(:,2))),...
     (x3c-min(shz.A(:,2)))./(max(shz.A(:,2))-min(shz.A(:,2))),...
-    power,1000,10);
+    power,7000,20);
 shz.e12pl = e12pl.*Vpl*0.5/(max(shz.A(:,2))-min(shz.A(:,2)));
 shz.e13pl = e13pl.*Vpl*0.5/(max(shz.A(:,2))-min(shz.A(:,2)));
 
@@ -165,6 +178,14 @@ evl.tau0     = -evl.K*ss.Vpl    - evl.lk1212*shz.e12pl - evl.lk1312*shz.e13pl;
 evl.sigma120 = -evl.kl12*ss.Vpl - evl.l1212*shz.e12pl  - evl.l1312*shz.e13pl;
 evl.sigma130 = -evl.kl13*ss.Vpl - evl.l1213*shz.e12pl  - evl.l1313*shz.e13pl;
 
+% figure(1),clf
+% plotshz(shz,shz.e12pl,1)
+% axis tight equal
+% caxis([1e-17 1e-13])
+% % caxis([-1 1].*1e-15)
+% xlim([0 1].*20)
+% set(gca,'ColorScale','log','YDir','reverse')
+% return
 %% % % % % % % % % % % % % % % % % % % % % % % % % % % %
 %                                                       %
 %         N U M E R I C A L   S O L U T I O N           %
@@ -268,7 +289,7 @@ end
 % deepx3 = 20e3;
 
 % surface dispalcements/velocities
-ox = linspace(0.01e3,200e3,200)';
+ox = linspace(0.01e3,200e3,100)';
 obs = [ox,zeros(length(ox),1)];
 Gd = compute_displacementkernels(obs,ss,shz);
 
@@ -308,28 +329,36 @@ end
 
 % locking depth function
 func = @(beta,obsx) beta(1)./pi.*atan2(obsx,beta(2));
+func2 = @(beta,obsx,data) data - beta(1)./pi.*atan2(obsx,beta(2));
+
 beta0 = [1,1];
-[beta,res,~,covb,~] = nlinfit(ox./20e3,vsurf(end,:)'./Vpl,func,beta0);
-betaCI = nlparci(beta,res,'covar',covb);
+[beta1,res,~,covb,~] = nlinfit(ox./20e3,vsurf(end,:)'./Vpl,func,beta0);
+beta2 = lsqnonlin(@(beta) func2(beta,ox./20e3,vsurf(end,:)'./Vpl),beta0,[0.9,0],[1.1,100]);
+% betaCI = nlparci(beta1,res,'covar',covb);
 
 figure(5),clf
-plot(ox./20e3,vsurf(end,:)'./Vpl,'x'), hold on
-plot(ox./20e3,func(beta,ox./20e3),'r-','LineWidth',2)
+plot(ox./20e3,vsurf(end,:)'./Vpl,'p','LineWidth',1), hold on
+plot(ox./20e3,func(beta1,ox./20e3),'-','LineWidth',2,'Color',rgb('gray'))
+plot(ox./20e3,func(beta2,ox./20e3),'r-','LineWidth',2)
 plot(ox./20e3,func(beta0,ox./20e3),'k-','LineWidth',2)
-plot(ox./20e3,func([0.9,2],ox./20e3),'k-.','LineWidth',2)
-axis tight, grid on
+% plot(ox./20e3,func([0.9,2],ox./20e3),'k-.','LineWidth',2)
+axis tight, grid off
 xlabel('x_2/D'), ylabel('v/V_{pl}')
 ylim([0 0.5])
-legend('interseismic velocity',['V_{pl} = ' num2str(beta(1),'%.1f') ', D = ' num2str(beta(2),'%.1f')]...
-    ,'V_{pl}, D','0.9 V_{pl}, 2D',...
+legend('interseismic velocity',['V_{pl} = ' num2str(beta1(1),'%.1f') ', D = ' num2str(beta1(2),'%.1f') ' (unbounded)']...
+    ,['V_{pl} = ' num2str(beta2(1),'%.1f') ', D = ' num2str(beta2(2),'%.1f') ' (bounded)'],...
+    'Elastic Plate',...
     'location','best')
 set(gca,'FontSize',15,'LineWidth',1.5)
+
+% T = table(ox./20e3,vsurf(end,:)'./Vpl);
+% writetable(T,'Figures/burgers_interseismic.dat');
 %% plot snapshots
 
 tplotvec = [0.1,0.95].*Teq;
 
 figure(11),clf
-set(gcf,'Position',[0 0.5 3 2].*500)
+set(gcf,'Position',[1.5 0.5 3 2].*500)
 
 for i = 1:length(tplotvec)
     index = find(abs(t-tplotvec(i))==min(abs(t-tplotvec(i))),1);
@@ -342,15 +371,15 @@ for i = 1:length(tplotvec)
 %     toplot = sqrt(shz.e12pl.^2 + shz.e13pl.^2);
     toplot = sqrt(e12d(index,:).^2 + e13d(index,:).^2)';
     
-    F = scatteredInterpolant(x2c,x3c,(toplot),'natural');
+    F = scatteredInterpolant(x2c,x3c,(toplot),'natural','none');
     x2g = linspace(-100e3,100e3,400)';
     %x3g = linspace(min(shz.A(:,2)),max(shz.A(:,2)),200)';
     x3g = linspace(Transition,Transition+x3_scale,200)';
     [X2g,X3g] = meshgrid(x2g,x3g);
     toplotint = F(X2g(:),X3g(:));
     
-    imagesc(x2g./1e3,x3g./1e3,reshape(toplotint,length(x3g),length(x2g))), shading flat, hold on
-%     plotshz(shz,toplot,1), shading flat, box on, hold on
+%     imagesc(x2g./1e3,x3g./1e3,reshape(toplotint,length(x3g),length(x2g))), shading flat, hold on
+    plotshz(shz,toplot,1), shading flat, box on, hold on
     contour(x2g./1e3,x3g./1e3,reshape(toplotint,length(x3g),length(x2g)),...
         logspace(log10(Vpl*1e-6),log10(Vpl*1e-3),20),'w-','LineWidth',.1)
     set(gca,'YDir','reverse','FontSize',20,'Color','none','LineWidth',2,'ColorScale','log')

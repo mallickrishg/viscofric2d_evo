@@ -215,8 +215,8 @@ tic
 options=odeset('Refine',1,'AbsTol',1e-6,'RelTol',1e-6,'InitialStep',1e-6,'MaxStep',3e8,'oDir','ode_out/'); 
 for i = 1:ncycles
     if i==1
-        [t,Y]=ode45_2(yp,[0 Teq],Y0,options);
-        t=t';Y=Y';
+        [t,Y]=ode45(yp,[0 Teq],Y0,options);
+        %t=t';Y=Y';
     else
         % provide new initial conditions (loaded by earthquake)
         Y0 = Y(end,:);
@@ -226,8 +226,9 @@ for i = 1:ncycles
         Y0(ss.M*ss.dgf+1:shz.dgf:end) = Y0(ss.M*ss.dgf+1:shz.dgf:end)' + evl.kl12*eqslip; %stress12
         Y0(ss.M*ss.dgf+2:shz.dgf:end) = Y0(ss.M*ss.dgf+2:shz.dgf:end)' + evl.kl13*eqslip; %stress13
         
-        [tmod,Ymod]=ode45_2(yp,[0 Teq],Y0,options);
-        t=[t;(i-1)*Teq+tmod'];Y=[Y;Ymod'];
+        [t,Y]=ode45(yp,[0 Teq],Y0,options);
+        %t=[t;(i-1)*Teq+tmod'];Y=[Y;Ymod'];
+        
     end
     disp(['Cycle ' num2str(i) ' in progress'])
 end

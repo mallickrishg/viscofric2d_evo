@@ -3,14 +3,14 @@ function [ss,shz,src] = create_flt_trishz_src(y2i,y3i,Transition,M,Nx,scf,LS,WS,
 % set initial points for (top of) faults y2i,y3i
 % number of patches per fault: M
 % Fault depth (BDT) - Transition (m)
-% number of shz zones: Nx,Nz
+% shear zone discretization: Nx, scf - default values Nx = 0.2, scf = 1
 % length scale(x3): LS
 % length scale(x2): WS
 % returns 
 % ss - flt, shz - shear zone , src - deep shear zone
 % structures are constructed for a fixed elastic lid thickness (Thickness ~ 20 km)
 % Rishav Mallick, 2019, EOS
-
+addpath meshing/
 %% % % % % % % % % % % % % % % % % % % % % % % % % % % %
 %                                                      %
 %                        M E S H                       %
@@ -100,8 +100,8 @@ p = [0,Transitionshz;...
 
 x0 = 0;
 y0 = Transitionshz./1e3;
-hmin = 0.2;
-dh = 1*hmin;
+hmin = Nx;
+dh = scf*hmin;
 
 hfun1 = @(x,y) hmin + dh*sqrt(( x - x0 ).^2  + ( y - y0 ).^2);
 

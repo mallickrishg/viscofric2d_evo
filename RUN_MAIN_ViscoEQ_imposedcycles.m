@@ -11,9 +11,7 @@ function RUN_MAIN_ViscoEQ_imposedcycles(Nx,M,Transition,burger,power,etaval,Trec
 % etaval - Maxwell viscosity
 % etaval*power - Kelvin viscosity
 
-addpath ~/Dropbox/scripts/utils/
-addpath ODESolving/
-addpath functions_dir/
+addpath functions/
 addpath odefunction/
 
 % Rigidity (MPa)
@@ -45,9 +43,9 @@ Transitionshz = Transition+0e3;
 basevw = 15e3;
 
 x3_scale = 30e3;
-x2_scale = 590e3;% 590 km for Tr = 200, 390 for Tr - 50, for power-law - 190 is good enough
-Nz = round(Nx/(2*x2_scale)*x3_scale);%1*Nx; % z-size = x3_scale/Nz
-scf = 1.1;
+x2_scale = 390e3;% 590 km for Tr = 200, 390 for Tr - 50, for power-law - 190 is good enough
+
+scf = 1.0;
 %% Create faults and shear zones
 % [ss,shz,~] = create_flt_shz_src(y2i,y3i,Transition,M,Nx,Nz,x3_scale,x2_scale,Transitionshz);
 
@@ -212,7 +210,7 @@ else
 end
 tic
 % Solve the system
-options=odeset('Refine',1,'AbsTol',1e-6,'RelTol',1e-6,'InitialStep',1e-6,'MaxStep',3e8,'oDir','ode_out/'); 
+options=odeset('Refine',1,'AbsTol',1e-6,'RelTol',1e-6,'InitialStep',1e-6,'MaxStep',3e8); 
 for i = 1:ncycles
     if i==1
         [t,Y]=ode45(yp,[0 Teq],Y0,options);

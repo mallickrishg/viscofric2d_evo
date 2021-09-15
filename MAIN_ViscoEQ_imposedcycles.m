@@ -24,7 +24,7 @@ basevw = 19e3;
 
 
 % shear zones
-power = 3;% strain rate = A*stress^(power)
+power = 1;% strain rate = A*stress^(power)
 burger = 0;% on-1/off-0
 % rheological coefficient
 etaval = 1e18;%Maxwell viscosity in Pa-s; for power>1, this is A^{-1}
@@ -146,7 +146,7 @@ disp('Assigned Frictional Properties')
 % compute long-term loading rate
 [e12pl,e13pl] = edotlongtermsol(x2c./(max(shz.A(:,2))-min(shz.A(:,2))),...
     (x3c-min(shz.A(:,2)))./(max(shz.A(:,2))-min(shz.A(:,2))),...
-    power,7000,20);
+    power,3000,20);
 shz.e12pl = e12pl.*Vpl*0.5/(max(shz.A(:,2))-min(shz.A(:,2)));
 shz.e13pl = e13pl.*Vpl*0.5/(max(shz.A(:,2))-min(shz.A(:,2)));
 
@@ -178,14 +178,16 @@ evl.tau0     = -evl.K*ss.Vpl    - evl.lk1212*shz.e12pl - evl.lk1312*shz.e13pl;
 evl.sigma120 = -evl.kl12*ss.Vpl - evl.l1212*shz.e12pl  - evl.l1312*shz.e13pl;
 evl.sigma130 = -evl.kl13*ss.Vpl - evl.l1213*shz.e12pl  - evl.l1313*shz.e13pl;
 
-% figure(1),clf
-% plotshz(shz,shz.e12pl,1)
-% axis tight equal
+figure(1),clf
+toplot = zeros(shz.N,1);
+toplot(shz.e12pl<0) = 1;
+plotshz(shz,toplot,1)
+axis tight equal
 % caxis([1e-17 1e-13])
-% % caxis([-1 1].*1e-15)
+% caxis([-1 1].*1e-15)
 % xlim([0 1].*20)
-% set(gca,'ColorScale','log','YDir','reverse')
-% return
+set(gca,'ColorScale','log','YDir','reverse')
+return
 %% % % % % % % % % % % % % % % % % % % % % % % % % % % %
 %                                                       %
 %         N U M E R I C A L   S O L U T I O N           %

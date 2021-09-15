@@ -1,9 +1,15 @@
 clear
 % close all
 
-x0 = 0;
-y0 = 20;
-hfun1 = @(x,y) 0.1 + 0.3*sqrt(( x - x0 ).^2  + ( y - y0 ).^2);
+% mesh close to a given point
+% specify location (x0,y0)
+x0 = 40;
+y0 = 50;
+% create a function that describes how the mesh should vary from x0,y0
+hmin = 0.1;
+dh = 1/2;
+
+hfun1 = @(x,y) hmin + dh*sqrt(( x - x0 ).^2  + ( y - y0 ).^2);
 
 % v =[0.0, 0.0;...
 %     2.0, 0.0;...
@@ -14,15 +20,18 @@ hfun1 = @(x,y) 0.1 + 0.3*sqrt(( x - x0 ).^2  + ( y - y0 ).^2);
 
 v = [0,20;...
     210,20;...
-    210,50;...
+    210,100;...
     0,50];
 
 hdata = [];
 hdata.fun = hfun1;
 
-
+% this is the meshing routine
 [ p, t ] = mesh2d ( v, [], hdata);
+% it creates a figure by default
 close
+
+
 figure(1),clf
 plot(v(:,1),v(:,2),'ko','MarkerFaceColor','r')
 hold on

@@ -7,8 +7,8 @@ We use RK-4th order integration to solve the governing system of ODEs (IVP).
 
 This code relies on 
 
-mesh2d - https://github.com/dengwirda/mesh2d
+a modification/version of mesh2d - https://github.com/dengwirda/mesh2d provided by https://people.sc.fsu.edu/~jburkardt/classes/dis_2014/mesh2d/mesh2d.html. This is incorporated into the package so no need to download separately.
 
-Scientific colourmaps from Fabio Crameri - https://www.fabiocrameri.ch/colourmaps/
+This is optional - Scientific colourmaps from Fabio Crameri - https://www.fabiocrameri.ch/colourmaps/
 
-Greens functions calculations from Lambert&Barbot (2016) https://doi.org/10.1002/2016GL070345 and Barbot (2018) https://doi.org/10.1785/0120180058
+Greens functions calculations from Lambert&Barbot (2016) https://doi.org/10.1002/2016GL070345 and Barbot (2018) https://doi.org/10.1785/0120180058. Also included in this package.

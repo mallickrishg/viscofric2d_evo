@@ -15,7 +15,6 @@ etavec = [3e18,1e19,3e18];
 powervec = [1,5e18/etavec(2),3];
 burgervec = [0,1,0];
 
-cspec = [rgb('orangered');rgb('sky blue');rgb('brown')];
 
 % specify surface observation points
 ox = linspace(-200e3,200e3,400)';
@@ -23,6 +22,8 @@ ox = linspace(-200e3,200e3,400)';
 %% plot results
 figure(1),clf
 set(gcf,'Position',[0 0.5 1.5 1.5].*500)
+% cspec = [rgb('orangered');rgb('sky blue');rgb('brown')];
+cspec = [1,0,0;0,1,0;0,0,1];
 for count = 1:length(etavec)
     
     etaval = etavec(count);

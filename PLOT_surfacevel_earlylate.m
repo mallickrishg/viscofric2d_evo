@@ -17,6 +17,8 @@ burgervec = [0,1,0];
 
 cspec = [rgb('orangered');rgb('sky blue');rgb('brown')];
 
+ox = linspace(-200e3,200e3,400)';
+
 figure(1),clf
 set(gcf,'Position',[0 0.5 1.5 1.5].*500)
 for count = 1:length(etavec)
@@ -52,7 +54,7 @@ for count = 1:length(etavec)
     tplotvec = [0.01*3.15e7;Teq];
     
     % compute surface velocities
-    ox = linspace(-200e3,200e3,400)';
+    
     obs = [ox,zeros(length(ox),1)];
     Gd = compute_displacementkernels(obs,ss,shz);
     deepx3 = max(shz.A(:,2));
@@ -109,8 +111,7 @@ for count = 1:length(etavec)
     tplotvec = [tplotearly;tplotlate];
     
     % compute surface velocities
-    ox = linspace(-200e3,200e3,400)';
-    obs = [ox,zeros(length(ox),1)];
+    
     Gd = compute_displacementkernels(obs,ss,shz);
     deepx3 = max(shz.A(:,2));
     vsurf_deep = (repmat(Vpl/pi.*atan2(ox,deepx3),1,length(t)))';

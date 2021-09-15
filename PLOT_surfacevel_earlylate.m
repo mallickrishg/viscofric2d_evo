@@ -17,8 +17,10 @@ burgervec = [0,1,0];
 
 cspec = [rgb('orangered');rgb('sky blue');rgb('brown')];
 
+% specify surface observation points
 ox = linspace(-200e3,200e3,400)';
 
+%% plot results
 figure(1),clf
 set(gcf,'Position',[0 0.5 1.5 1.5].*500)
 for count = 1:length(etavec)
@@ -42,27 +44,17 @@ for count = 1:length(etavec)
     load([odir '/modeloutputs_f.mat'])
     load([odir '/modeloutputs_s.mat'])
     
-    if isfield(shz,'L')
-        x2c = shz.xx2c(:);
-        x3c = shz.xx3c(:);
-    elseif isfield(shz,'tri')
-        x2c = mean([shz.A(:,1),shz.B(:,1),shz.C(:,1)],2);
-        x3c = mean([shz.A(:,2),shz.B(:,2),shz.C(:,2)],2);
-    end
     
-    % PLOT surface velocities
+    % PLOT surface velocities at specified times since the earthquake
     tplotvec = [0.01*3.15e7;Teq];
     
-    % compute surface velocities
-    
+    % compute surface velocities    
     obs = [ox,zeros(length(ox),1)];
     Gd = compute_displacementkernels(obs,ss,shz);
     deepx3 = max(shz.A(:,2));
     vsurf_deep = (repmat(Vpl/pi.*atan2(ox,deepx3),1,length(t)))';
     vsurf_v = (Gd.l12d*e12d' +  Gd.l13d*e13d')'; % no deep loading
     vsurf = vsurf_v + vsurf_deep;
-    
-    
     
     for i = 1:length(tplotvec)
         index = find(abs(t-tplotvec(i))==min(abs(t-tplotvec(i))),1);        
@@ -105,13 +97,12 @@ for count = 1:length(etavec)
     
     
     
-    % PLOT surface velocities
+    % PLOT surface velocities at specified times
     tplotearly = logspace(-3,1,10)'.*3.15e7;
     tplotlate = [0.1:0.1:1]'*Teq;
     tplotvec = [tplotearly;tplotlate];
     
-    % compute surface velocities
-    
+    % compute surface velocities    
     Gd = compute_displacementkernels(obs,ss,shz);
     deepx3 = max(shz.A(:,2));
     vsurf_deep = (repmat(Vpl/pi.*atan2(ox,deepx3),1,length(t)))';

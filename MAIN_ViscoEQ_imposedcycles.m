@@ -20,16 +20,16 @@ y2i = 0;
 M = 40;
 y3i = 0;
 % base of VW locking (needs to be less than Plate thickness)
-basevw = 19e3;
+basevw = 15e3;
 
 
 % shear zones
 power = 1;% strain rate = A*stress^(power)
-burger = 0;% on-1/off-0
+burger = 1;% on-1/off-0
 % rheological coefficient
-etaval = 1e18;%Maxwell viscosity in Pa-s; for power>1, this is A^{-1}
+etaval = 1e20;%Maxwell viscosity in Pa-s; for power>1, this is A^{-1}
 
-alphaval = 1/10;% for Kelvin element (eta_K = alpha*etaM)
+alphaval = 1/100;% for Kelvin element (eta_K = alpha*etaM)
 
 if burger==1
     power = 1;
@@ -38,12 +38,12 @@ if burger==1
 end
 
 % shear zone meshing parameters
-Nx = 50;
+Nx = 0.2;
 Transition = 20e3;% Plate thickness/depth edge of fault domain and beginning of shear zone
 % domain size
 x3_scale = 30e3;
 x2_scale = 300e3;
-scf = 1.5; % varies the meshing (leave as is)
+scf = 1.0; % varies the meshing (leave as is)
 %% Create faults and shear zones
 
 % Trimesh shear zone
@@ -53,8 +53,8 @@ disp(['Number of shear zone elements = ' num2str(shz.N)])
 Vpl = 1e-9; %(m/s)
 
 %% impose earthquake parameters
-Teq = 50.*3.15e7;% earthquake every Teq years
-ncycles = 20; % number of earthquake cycles
+Teq = 100.*3.15e7;% earthquake every Teq years
+ncycles = 10; % number of earthquake cycles
 
 %% Stress Kernels and EVL object
 
@@ -187,7 +187,7 @@ axis tight equal
 % caxis([-1 1].*1e-15)
 % xlim([0 1].*20)
 set(gca,'ColorScale','log','YDir','reverse')
-return
+% return
 %% % % % % % % % % % % % % % % % % % % % % % % % % % % %
 %                                                       %
 %         N U M E R I C A L   S O L U T I O N           %
@@ -222,7 +222,7 @@ else
 end
 tic
 % Solve the system
-options=odeset('Refine',1,'AbsTol',1e-6,'RelTol',1e-6,'InitialStep',1e-6,'MaxStep',3e8); 
+options=odeset('Refine',1,'AbsTol',1e-9,'RelTol',1e-9,'InitialStep',1e-6,'MaxStep',3e8); 
 for i = 1:ncycles
     if i==1
         [t,Y]=ode45(yp,[0 Teq],Y0,options);
@@ -251,7 +251,6 @@ slip = Y(:,1:ss.dgf:ss.M*ss.dgf);
 s12 = Y(:,ss.M*ss.dgf+1:shz.dgf:ss.M*ss.dgf+shz.N*shz.dgf);
 s13 = Y(:,ss.M*ss.dgf+2:shz.dgf:ss.M*ss.dgf+shz.N*shz.dgf);
 
-
 if burger==0
     e12 = Y(:,ss.M*ss.dgf+3:shz.dgf:ss.M*ss.dgf+shz.N*shz.dgf);
     e13 = Y(:,ss.M*ss.dgf+4:shz.dgf:ss.M*ss.dgf+shz.N*shz.dgf);
@@ -271,8 +270,10 @@ else
     e12K = Y(:,ss.M*ss.dgf+5:shz.dgf:ss.M*ss.dgf+shz.N*shz.dgf);
     e13K = Y(:,ss.M*ss.dgf+6:shz.dgf:ss.M*ss.dgf+shz.N*shz.dgf);
     
-    e12d_K = (s12 + (evl.l1212*e12K' + evl.l1312*e13K')')./repmat((shz.etaK)',size(Y,1),1);
-    e13d_K = (s13 + (evl.l1213*e12K' + evl.l1313*e13K')')./repmat((shz.etaK)',size(Y,1),1);
+    %e12d_K = (s12 + (evl.l1212*e12K' + evl.l1312*e13K')')./repmat((shz.etaK)',size(Y,1),1);
+    %e13d_K = (s13 + (evl.l1213*e12K' + evl.l1313*e13K')')./repmat((shz.etaK)',size(Y,1),1);
+    e12d_K = (s12 - G.*e12K)./repmat((shz.etaK)',size(Y,1),1);
+    e13d_K = (s13 - G.*e13K)./repmat((shz.etaK)',size(Y,1),1);
     
     e12d = s12./repmat(shz.etaM',size(Y,1),1) + e12d_K;
     e13d = s13./repmat(shz.etaM',size(Y,1),1) + e13d_K;
@@ -299,15 +300,15 @@ vsurf_f = (Gd.kd*V')';
 vsurf_deep = (repmat(Vpl/pi.*atan2(ox,deepx3),1,length(t)))';
 vsurf_v = (Gd.l12d*e12d' +  Gd.l13d*e13d')'; % no deep loading
 % vsurf_v = (Gd.l12d*(e12d'-shz.e12pl) +  Gd.l13d*(e13d'-shz.e13pl))'; % no deep loading
-vsurf = vsurf_f + vsurf_v + vsurf_deep;
+vsurf = vsurf_v + vsurf_deep;
 
 
 figure(10),clf
 set(gcf,'Position',[0 0.5 2 2].*500)
 % tplotvec = Tevent + [1/50,1/20,.1,.2,.3,.4,.5,.6,.7,.8,.9].*Teq;
-tplotvec = [.1,.2,.3,.4,.5,.6,.7,.8,.9].*Teq;
+tplotvec = [[0,1,7,30,60,90,180,365,2*365,5*365].*86400,[0.1:0.1:1].*Teq];
 
-cspec = cool(length(tplotvec));
+cspec = [parula(10);cool(length(tplotvec)-6)];
 
 for i = 1:length(tplotvec)
     index = find(abs(t-tplotvec(i))==min(abs(t-tplotvec(i))),1);
@@ -319,8 +320,8 @@ plot(ox./20e3,1/pi.*atan2(ox,20e3),'k-','LineWidth',2)
 % plot(ox./20e3,1/pi.*atan2(ox,60e3),'k--','LineWidth',1)
 xlabel('x_2/D'), ylabel('V/V_{pl}')
 axis tight, grid on
-ylim([0 1])
-set(gca,'FontSize',20,'LineWidth',2)
+ylim([1e-2 10])
+set(gca,'FontSize',20,'LineWidth',2,'YScale','log')
 if burger==0
     title(['Power n = ' num2str(power)])
 else
@@ -357,10 +358,10 @@ set(gca,'FontSize',15,'LineWidth',1.5)
 % writetable(T,'Figures/burgers_interseismic.dat');
 %% plot snapshots
 
-tplotvec = [0.1,0.95].*Teq;
+tplotvec = [0.02,0.95].*Teq;
 
 figure(11),clf
-set(gcf,'Position',[1.5 0.5 3 2].*500)
+set(gcf,'Position',[0 0.5 3 1.7].*500)
 
 for i = 1:length(tplotvec)
     index = find(abs(t-tplotvec(i))==min(abs(t-tplotvec(i))),1);

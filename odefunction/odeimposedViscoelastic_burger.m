@@ -28,8 +28,10 @@ s13 = Y(ss.M*ss.dgf+2:shz.dgf:ss.M*ss.dgf+shz.N*shz.dgf);
 e12_K = Y(ss.M*ss.dgf+5:shz.dgf:ss.M*ss.dgf+shz.N*shz.dgf);
 e13_K = Y(ss.M*ss.dgf+6:shz.dgf:ss.M*ss.dgf+shz.N*shz.dgf);
 
-e12dot_K = (s12 + (evl.l1212*e12_K + evl.l1312*e13_K))./shz.etaK;
-e13dot_K = (s13 + (evl.l1213*e12_K + evl.l1313*e13_K))./shz.etaK;
+% e12dot_K = (s12 + (evl.l1212*e12_K + evl.l1312*e13_K))./shz.etaK;
+% e13dot_K = (s13 + (evl.l1213*e12_K + evl.l1313*e13_K))./shz.etaK;
+e12dot_K = (s12 - G*e12_K)./shz.etaK;
+e13dot_K = (s13 - G*e13_K)./shz.etaK;
 
 e12dot_T = s12./shz.etaM + e12dot_K;
 e13dot_T = s13./shz.etaM + e13dot_K;

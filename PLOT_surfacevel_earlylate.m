@@ -1,5 +1,5 @@
 % plot early (peak) postseismic and late interseismic velocities with a linear scale
-% RIshav Mallick, EOS, 2021
+% Rishav Mallick, EOS, 2021
 
 clear
 addpath functions/
@@ -11,13 +11,13 @@ Vpl = 1e-9;
 Trecur = 50;
 
 % specify viscosity/rheological param and power exponent
-etavec = [3e18,1e19,3e18];
+etavec = [3e18,5e19,3e18];
 powervec = [1,5e18/etavec(2),3];
 burgervec = [0,1,0];
 
 
 % specify surface observation points
-ox = linspace(-200e3,200e3,400)';
+ox = linspace(-100e3,100e3,400)';
 
 %% plot results
 figure(1),clf
@@ -73,10 +73,11 @@ set(gca,'FontSize',20,'LineWidth',1,'YScale','lin')
 % xlim([-1 1]*200)
 
 %% plot as 3 separate plots with various snapshots
-
+figure(10),clf
+set(gcf,'Position',[0 0 4 1.1]*500,'Color','w')
 for count = 1:length(etavec)
-    figure(count+1),clf
-    set(gcf,'Position',[(count-1)*1.5 0 1.5 1.5].*500)
+    %figure(count+1),clf
+    %set(gcf,'Position',[(count-1)*1.5 0 1.5 1.5].*500)
     etaval = etavec(count);
     powerval = powervec(count);
     burger = burgervec(count);
@@ -99,9 +100,11 @@ for count = 1:length(etavec)
     
     
     % PLOT surface velocities at specified times
-    tplotearly = logspace(-3,1,10)'.*3.15e7;
-    tplotlate = [0.1:0.1:1]'*Teq;
-    tplotvec = [tplotearly;tplotlate];
+    %tplotearly = logspace(-3,1,10)'.*3.15e7;
+    %tplotlate = [0.1,0.3,0.5,0.7,0.9]'*Teq;
+    
+    %tplotvec = [tplotearly;tplotlate];
+    tplotvec = [0.001,0.01,0.1,0.5,0.9]'*Teq;
     
     % compute surface velocities    
     Gd = compute_displacementkernels(obs,ss,shz);
@@ -110,13 +113,16 @@ for count = 1:length(etavec)
     vsurf_v = (Gd.l12d*e12d' +  Gd.l13d*e13d')'; % no deep loading
     vsurf = vsurf_v + vsurf_deep;
     
-    cspec = [cool(length(tplotearly));parula(length(tplotlate))];
+    figure(10)
+    subplot(1,length(etavec),count)
+    %cspec = [cool(length(tplotearly));parula(length(tplotlate))];
+    cspec = cool(length(tplotvec));
     for i = 1:length(tplotvec)
         index = find(abs(t-tplotvec(i))==min(abs(t-tplotvec(i))),1);
         
-        plot(ox./1e3,vsurf(index,:)./Vpl,'-','Linewidth',1,'Color',cspec(i,:)), hold on
+        plot(ox./1e3,vsurf(index,:)./Vpl,'-','Linewidth',3,'Color',cspec(i,:)), hold on
     end
-    plot(ox./1e3,1/pi*atan2(ox,20e3),'k-','Linewidth',2)
+    plot(ox./1e3,1/pi*atan2(ox,20e3),'k:','Linewidth',2)
     axis tight
     ylim([-1 1]*2)
     ylabel('v/v^{\infty}')
@@ -125,15 +131,33 @@ for count = 1:length(etavec)
         title('Linear Maxwell','FontWeight','normal')
     elseif count==2
         title('Linear Burgers','FontWeight','normal')
+        legend('\Deltat/T_{eq} = 0.001','\Deltat/T_{eq} = 0.01','\Deltat/T_{eq} = 0.1','\Deltat/T_{eq} = 0.5','\Deltat/T_{eq} = 0.9','steady interseismic',...
+        'location','southeast','box','off')
     else
         title('Power Law','FontWeight','normal')
     end    
-    set(gca,'FontSize',20,'LineWidth',1,'YScale','lin')
-    xlim([-1 1]*200)    
+    
+    set(gca,'FontSize',20,'LineWidth',1,'YScale','lin','YTick',[-2:1:2])
+    xlim([-1 1]*100)    
     xlabel('x_2 (km)')
 
-    
-    
-    %print(['Figures/postseismic_comparerheologies_' num2str(count)],'-djpeg','-r300')
+    figure(20+count),clf
+    set(gcf,'Position',[0 0 3 1.4]*500,'Color','w')
+    for i = 1:length(tplotvec)
+        index = find(abs(t-tplotvec(i))==min(abs(t-tplotvec(i))),1);        
+        plot(ox./1e3,vsurf(index,:)./Vpl,'-','Linewidth',2,'Color',cspec(i,:)), hold on
+    end
+    plot(ox./1e3,1/pi*atan2(ox,20e3),'k-','Linewidth',3)
+    axis tight
+    ylim([-1 1]*2)
+    ylabel('v/v^{\infty}')
+    set(gca,'FontSize',40,'LineWidth',2,'YScale','lin','YTick',[-2:1:2],'TickDir','out')
+    xlim([-1 1]*100)    
+    xlabel('x_2 (km)')
+    legend('\Deltat/T_{eq} = 0.001','\Deltat/T_{eq} = 0.01','\Deltat/T_{eq} = 0.1','\Deltat/T_{eq} = 0.5','\Deltat/T_{eq} = 0.9',...
+        ...
+        'location','northwest','box','off')
+    print(['Figures/postseismic_comparerheologies_' num2str(count)],'-djpeg','-r300')
 
 end
+%print(['Figures/postinterseismic_comparerheologies_'],'-djpeg','-r300')

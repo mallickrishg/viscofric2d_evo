@@ -59,7 +59,7 @@ y2i = unique(ss.y2f);
 
 %% impose earthquake parameters
 Teq = Trecur.*3.15e7;% earthquake every Teq years
-ncycles = 1000/Trecur; % number of earthquake cycles
+ncycles = 10000/Trecur; % number of earthquake cycles
 
 %% Stress Kernels and EVL object
 
@@ -260,8 +260,10 @@ else
     e12K = Y(:,ss.M*ss.dgf+5:shz.dgf:ss.M*ss.dgf+shz.N*shz.dgf);
     e13K = Y(:,ss.M*ss.dgf+6:shz.dgf:ss.M*ss.dgf+shz.N*shz.dgf);
     
-    e12d_K = (s12 + (evl.l1212*e12K' + evl.l1312*e13K')')./repmat((shz.etaK)',size(Y,1),1);
-    e13d_K = (s13 + (evl.l1213*e12K' + evl.l1313*e13K')')./repmat((shz.etaK)',size(Y,1),1);
+    %e12d_K = (s12 + (evl.l1212*e12K' + evl.l1312*e13K')')./repmat((shz.etaK)',size(Y,1),1);
+    %e13d_K = (s13 + (evl.l1213*e12K' + evl.l1313*e13K')')./repmat((shz.etaK)',size(Y,1),1);
+    e12d_K = (s12 - G.*e12K)./repmat((shz.etaK)',size(Y,1),1);
+    e13d_K = (s13 - G.*e13K)./repmat((shz.etaK)',size(Y,1),1);
     
     e12d = s12./repmat(shz.etaM',size(Y,1),1) + e12d_K;
     e13d = s13./repmat(shz.etaM',size(Y,1),1) + e13d_K;

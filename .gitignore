@@ -1,5 +1,6 @@
 Figures/
 imposedviscocycles*/
+hetero*/
 *.seg
 COMPARE_*.m
 PLOT_*.m

@@ -9,3 +9,6 @@ functions/strain_numericalintegration.m
 functions/tricontour.m
 EQSequences/*
 .DS_Store
+COMPUTE_relaxtimes_svd.m
+RUN_loopparams_imposedviscoEQ.m
+RUN_MAIN_ViscoEQ_imposedcycles.m

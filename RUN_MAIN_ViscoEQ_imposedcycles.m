@@ -43,7 +43,7 @@ Transitionshz = Transition+0e3;
 basevw = 15e3;
 
 x3_scale = 30e3;
-x2_scale = 390e3;% 590 km for Tr = 200, 390 for Tr - 50, for power-law - 190 is good enough
+x2_scale = 190e3;% 590 km for Tr = 200, 390 for Tr - 50, for power-law - 190 is good enough
 
 scf = 1.0;
 %% Create faults and shear zones

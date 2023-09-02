@@ -13,10 +13,10 @@ Transition = 20e3;
 % burger = 0;
 
 % power-law rheology
-% eta = [1e18,5e18,1e19,5e19,1e20];
-% power = [1:6];
-% [etavec,powervec] = meshgrid(eta,power);
-% burgervec = zeros(size(etavec));
+eta = [1e18,3e18];
+power = [1];
+[etavec,powervec] = meshgrid(eta,power);
+burgervec = zeros(size(etavec));
 
 % etavec = [3e18,3e18,5e19];
 % powervec = [1,3,0.1];
@@ -37,15 +37,15 @@ Transition = 20e3;
 % etavec(index) = [];
 % burgervec = ones(size(etavec));
 
-etaM = [1e20];
-etaK = [2e18];
-[etaMvec,etaKvec] = meshgrid(etaM,etaK);
-powervec = etaKvec./etaMvec;
-etavec = etaMvec;
-index = etaKvec>etaMvec;
-powervec(index) = [];
-etavec(index) = [];
-burgervec = ones(size(etavec));
+% etaM = [1e20];
+% etaK = [2e18];
+% [etaMvec,etaKvec] = meshgrid(etaM,etaK);
+% powervec = etaKvec./etaMvec;
+% etavec = etaMvec;
+% index = etaKvec>etaMvec;
+% powervec(index) = [];
+% etavec(index) = [];
+% burgervec = ones(size(etavec));
 
 Trecur = 200;
 Vpl = 1e-9;

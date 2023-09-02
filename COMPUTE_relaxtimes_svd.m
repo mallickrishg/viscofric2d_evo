@@ -14,7 +14,7 @@ Vpl = 1e-9;
 Trecur = 100;
 burger = 0;
 etaval = 1e18;
-powerval = 3;
+powerval = 1;
 
 if burger==0
     odir = ['imposedviscocycles_' num2str(Vpl,'%1.e') '/Nx_' num2str(Nx) '_M_' num2str(M) ...

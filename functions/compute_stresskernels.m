@@ -86,7 +86,7 @@ else
         end
         
         % Stress on faults from fault slip
-        evl.K(:,k)=s12h(ss.y2f,ss.y3c,ss.y2f(k),ss.y3f(k),ss.Wf(k));
+        evl.K(:,k)=s12h(ss.y2c,ss.y3c,ss.y2f(k),ss.y3f(k),ss.Wf(k));
     end
 end
 

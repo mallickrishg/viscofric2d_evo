@@ -10,7 +10,7 @@ function [ss,shz,src] = create_flt_trishz_src(y2i,y3i,Transition,M,Nx,scf,LS,WS,
 % ss - flt, shz - shear zone , src - deep shear zone
 % structures are constructed for a fixed elastic lid thickness (Thickness ~ 20 km)
 % Rishav Mallick, 2019, EOS
-addpath meshing/
+
 %% % % % % % % % % % % % % % % % % % % % % % % % % % % %
 %                                                      %
 %                        M E S H                       %

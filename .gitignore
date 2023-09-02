@@ -7,3 +7,4 @@ PLOT_*.m
 functions/recompute_tri.m
 functions/strain_numericalintegration.m
 functions/tricontour.m
+EQSequences/*

@@ -145,9 +145,9 @@ for count = 1:length(etavec)
     set(gcf,'Position',[0 0 3 1.4]*500,'Color','w')
     for i = 1:length(tplotvec)
         index = find(abs(t-tplotvec(i))==min(abs(t-tplotvec(i))),1);        
-        plot(ox./1e3,vsurf(index,:)./Vpl,'-','Linewidth',2,'Color',cspec(i,:)), hold on
+        plot(ox./1e3,vsurf(index,:)./Vpl,'-','Linewidth',4,'Color',cspec(i,:)), hold on
     end
-    plot(ox./1e3,1/pi*atan2(ox,20e3),'k-','Linewidth',3)
+    plot(ox./1e3,1/pi*atan2(ox,20e3),'k-','Linewidth',4)
     axis tight
     ylim([-1 1]*2)
     ylabel('v/v^{\infty}')
